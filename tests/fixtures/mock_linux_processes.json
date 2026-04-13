@@ -1,0 +1,16 @@
+[
+  {
+    "pid": 100,
+    "name": "systemd",
+    "cpu_percent": 0.2,
+    "memory_bytes": 20971520,
+    "status": "sleeping"
+  },
+  {
+    "pid": 101,
+    "name": "xmrig",
+    "cpu_percent": 91.0,
+    "memory_bytes": 104857600,
+    "status": "running"
+  }
+]

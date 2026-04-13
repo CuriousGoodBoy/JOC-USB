@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=JOC USB Scanner
+Exec=/bin/bash -c "cd $HOME/joc-usb && ./scripts/start.sh"
+X-GNOME-Autostart-enabled=true
+NoDisplay=false
+Terminal=true
