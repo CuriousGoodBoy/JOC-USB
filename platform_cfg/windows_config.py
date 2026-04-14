@@ -3,6 +3,7 @@ from __future__ import annotations
 from platform_cfg.base_config import PlatformConfig
 
 WINDOWS_CONFIG = PlatformConfig(
+    os="windows",
     cpu_high_threshold=90.0,
     ram_high_threshold_mb=700,
     known_processes={

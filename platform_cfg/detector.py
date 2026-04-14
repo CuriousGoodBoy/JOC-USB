@@ -1,12 +1,14 @@
-from __future__ import annotations
-
-import sys
+import platform
 
 
 def detect_platform() -> str:
-    current = sys.platform.lower()
-    if current.startswith("linux"):
-        return "linux"
-    if current.startswith("win"):
-        return "windows"
-    return "unknown"
+    """Detect the host OS for platform-specific engine configuration."""
+    try:
+        current = platform.system().lower()
+        if current == "windows":
+            return "windows"
+        if current == "linux":
+            return "linux"
+        return "unknown"
+    except Exception:
+        return "unknown"

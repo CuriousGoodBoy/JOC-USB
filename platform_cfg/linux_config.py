@@ -3,6 +3,7 @@ from __future__ import annotations
 from platform_cfg.base_config import PlatformConfig
 
 LINUX_CONFIG = PlatformConfig(
+    os="linux",
     cpu_high_threshold=85.0,
     ram_high_threshold_mb=600,
     known_processes={

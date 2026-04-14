@@ -1,13 +1,14 @@
-from __future__ import annotations
-
-from platform_cfg.base_config import PlatformConfig, default_config
+from platform_cfg.base_config import PlatformConfig
+from platform_cfg.detector import detect_platform
 from platform_cfg.linux_config import LINUX_CONFIG
 from platform_cfg.windows_config import WINDOWS_CONFIG
 
 
-def resolve_config(os_name: str) -> PlatformConfig:
-    if os_name == "linux":
-        return LINUX_CONFIG
-    if os_name == "windows":
+def get_platform_config() -> PlatformConfig | None:
+    platform_name = detect_platform()
+
+    if platform_name == "windows":
         return WINDOWS_CONFIG
-    return default_config()
+    if platform_name == "linux":
+        return LINUX_CONFIG
+    return None
