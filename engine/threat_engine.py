@@ -1,56 +1,105 @@
-from __future__ import annotations
+"""Rule-based threat detection from process signals."""
 
-from engine.models import ProcessInfo, ThreatItem
-from platform.base_config import PlatformConfig
+from backend.security.sec_config import IGNORE_SYSTEM_PROCESSES
+from backend.security.sec_models import ProcessInfo, ThreatItem, ThreatSeverity
 
 
-def detect_threats(processes: list[ProcessInfo], config: PlatformConfig) -> list[ThreatItem]:
+def detect_threats(processes: list[ProcessInfo]) -> list[ThreatItem]:
+    """Convert analyzed processes into structured threat items."""
     threats: list[ThreatItem] = []
+    seen: set[tuple[str, str]] = set()
 
     for proc in processes:
-        if proc.category == "suspicious":
-            threats.append(
-                ThreatItem(
-                    severity="HIGH",
-                    title="Suspicious process detected",
-                    description=f"{proc.name} matches a known suspicious signature",
-                    process_name=proc.name,
-                    pid=proc.pid,
-                )
-            )
+        name = (proc.name or "unknown").lower()
+        if name in IGNORE_SYSTEM_PROCESSES:
+            continue
 
-        if proc.category == "unknown":
-            threats.append(
-                ThreatItem(
-                    severity="MEDIUM",
-                    title="Unknown process",
-                    description=f"{proc.name} is not in the trusted process list",
-                    process_name=proc.name,
-                    pid=proc.pid,
-                )
-            )
+        if proc.classification == "known_safe":
+            continue
 
-        if proc.cpu_percent >= config.cpu_high_threshold:
-            threats.append(
-                ThreatItem(
-                    severity="HIGH",
-                    title="High CPU usage",
-                    description=f"{proc.name} is using {proc.cpu_percent:.1f}% CPU",
-                    process_name=proc.name,
-                    pid=proc.pid,
-                )
-            )
+        process_name = name
 
-        ram_mb = proc.memory_bytes / (1024 * 1024)
-        if ram_mb >= config.ram_high_threshold_mb:
-            threats.append(
-                ThreatItem(
-                    severity="MEDIUM",
-                    title="High memory usage",
-                    description=f"{proc.name} is using {ram_mb:.1f} MB RAM",
-                    process_name=proc.name,
-                    pid=proc.pid,
+        if proc.classification == "suspicious":
+            category = "suspicious_process"
+            threat_id = f"{proc.pid}_{category}".lower()
+            key = (process_name, category)
+            if key not in seen:
+                threats.append(
+                    ThreatItem(
+                        id=threat_id,
+                        category=category,
+                        severity=ThreatSeverity.HIGH,
+                        title="Suspicious Process Detected",
+                        description=(
+                            f"Process {proc.name} flagged as suspicious "
+                            f"(CPU: {proc.cpu_percent:.1f}%, RAM: {proc.ram_mb:.1f} MB)."
+                        ),
+                        pid=proc.pid,
+                        process_name=proc.name,
+                    )
                 )
-            )
+                seen.add(key)
+
+        if proc.classification == "unknown" and proc.cpu_percent > 1:
+            category = "unknown_process"
+            threat_id = f"{proc.pid}_{category}".lower()
+            key = (process_name, category)
+            if key not in seen:
+                threats.append(
+                    ThreatItem(
+                        id=threat_id,
+                        category=category,
+                        severity=ThreatSeverity.MEDIUM,
+                        title="Unknown Process",
+                        description=(
+                            f"Process {proc.name} (PID {proc.pid}) is not recognized."
+                        ),
+                        pid=proc.pid,
+                        process_name=proc.name,
+                    )
+                )
+                seen.add(key)
+
+        if proc.is_idle:
+            category = "idle_resource_hog"
+            threat_id = f"{proc.pid}_{category}".lower()
+            key = (process_name, category)
+            if key not in seen:
+                threats.append(
+                    ThreatItem(
+                        id=threat_id,
+                        category=category,
+                        severity=ThreatSeverity.MEDIUM,
+                        title="Idle Resource Usage",
+                        description=(
+                            f"Process {proc.name} is mostly idle with low CPU but "
+                            f"high RAM usage ({proc.ram_mb:.1f} MB)."
+                        ),
+                        pid=proc.pid,
+                        process_name=proc.name,
+                    )
+                )
+                seen.add(key)
+
+        if proc.is_background and proc.classification == "suspicious":
+            category = "background_suspicious"
+            threat_id = f"{proc.pid}_{category}".lower()
+            key = (process_name, category)
+            if key not in seen:
+                threats.append(
+                    ThreatItem(
+                        id=threat_id,
+                        category=category,
+                        severity=ThreatSeverity.HIGH,
+                        title="Suspicious Background Activity",
+                        description=(
+                            f"Suspicious background process {proc.name} detected "
+                            f"(PID {proc.pid})."
+                        ),
+                        pid=proc.pid,
+                        process_name=proc.name,
+                    )
+                )
+                seen.add(key)
 
     return threats

@@ -1,27 +1,27 @@
-from __future__ import annotations
+"""Risk scoring stage for detected threats."""
 
-from engine.models import ThreatItem
-
-
-SEVERITY_WEIGHTS = {
-    "LOW": 5,
-    "MEDIUM": 12,
-    "HIGH": 20,
-    "CRITICAL": 35,
-}
+from backend.security.sec_models import RiskLevel, ThreatItem
 
 
-def calculate_risk(threats: list[ThreatItem]) -> tuple[int, str]:
-    raw_score = sum(SEVERITY_WEIGHTS.get(item.severity.upper(), 0) for item in threats)
-    score = min(100, raw_score)
+def calculate_risk(threats: list[ThreatItem]) -> tuple[int, RiskLevel]:
+    """Calculate score from unique affected processes and map to a risk level."""
+    unique_processes = {threat.process_name for threat in threats if threat.process_name}
+    score = min(100, len(unique_processes) * 10)
 
-    if score < 25:
-        level = "LOW"
-    elif score < 50:
-        level = "MODERATE"
-    elif score < 75:
-        level = "HIGH"
+    if score <= 25:
+        level = RiskLevel.LOW
+    elif score <= 60:
+        level = RiskLevel.MODERATE
     else:
-        level = "CRITICAL"
+        level = RiskLevel.HIGH
 
     return score, level
+
+
+def evaluate_risk(threats: list[ThreatItem]) -> dict:
+    """Compatibility wrapper for existing orchestrator output shape."""
+    score, level = calculate_risk(threats)
+    return {
+        "security_score": score,
+        "risk_level": level.value,
+    }
