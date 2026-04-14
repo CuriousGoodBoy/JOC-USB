@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from platform.base_config import PlatformConfig
+from platform_cfg.base_config import PlatformConfig
 
 WINDOWS_CONFIG = PlatformConfig(
     cpu_high_threshold=90.0,

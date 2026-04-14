@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from engine.process_engine import collect_processes
 from engine.security_engine import analyze
-from platform.detector import detect_platform
-from platform.resolver import resolve_config
+from platform_cfg.detector import detect_platform
+from platform_cfg.resolver import resolve_config
 
 
 def run_scan() -> dict:

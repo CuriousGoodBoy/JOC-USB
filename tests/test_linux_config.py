@@ -1,4 +1,4 @@
-from platform.linux_config import LINUX_CONFIG
+from platform_cfg.linux_config import LINUX_CONFIG
 
 
 def test_linux_config_has_thresholds():
