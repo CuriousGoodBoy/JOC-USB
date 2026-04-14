@@ -3,7 +3,10 @@ from enum import Enum
 from typing import List
 
 
+# =====================
 # ENUMS
+# =====================
+
 class ProcessClassification(Enum):
     KNOWN_SAFE = "known_safe"
     UNKNOWN = "unknown"
@@ -22,7 +25,10 @@ class RiskLevel(Enum):
     HIGH = "high"
 
 
+# =====================
 # DATA CLASSES
+# =====================
+
 @dataclass
 class ProcessInfo:
     pid: int
@@ -59,3 +65,4 @@ class SecurityResult:
     risk_level: RiskLevel
     threats: List[ThreatItem]
     recommendations: List[Recommendation]
+    

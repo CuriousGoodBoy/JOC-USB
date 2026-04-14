@@ -6,7 +6,7 @@ def bytes_to_mb(bytes_value: int) -> float:
     try:
         if bytes_value is None:
             return 0.0
-        return max(float(bytes_value), 0.0) / (1024.0 * 1024.0)
+        return round(max(float(bytes_value), 0.0) / (1024.0 * 1024.0), 2)
     except Exception:
         return 0.0
 

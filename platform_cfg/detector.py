@@ -7,7 +7,7 @@ def detect_platform() -> str:
         current = platform.system().lower()
         if current == "windows":
             return "windows"
-        if current == "linux":
+        elif current == "linux":
             return "linux"
         return "unknown"
     except Exception:
