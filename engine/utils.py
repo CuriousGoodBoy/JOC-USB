@@ -1,32 +1,43 @@
-"""Small shared utility functions for the security module."""
-
-from typing import Any
+"""Reusable, engine-agnostic utility helpers."""
 
 
-def format_bytes(n: int) -> str:
-    """Convert bytes to a human-readable string."""
-    value = float(max(n, 0))
-    units = ["B", "KB", "MB", "GB", "TB", "PB"]
-
-    for unit in units:
-        if value < 1024 or unit == units[-1]:
-            if unit == "B":
-                return f"{int(value)} B"
-            return f"{value:.2f} {unit}"
-        value /= 1024
-
-    return "0 B"
-
-
-def safe_proc_attr(proc: Any, attr: str, default: Any = None) -> Any:
-    """Safely access psutil process attributes."""
+def bytes_to_mb(bytes_value: int) -> float:
+    """Convert bytes to megabytes, safely handling invalid input."""
     try:
-        if hasattr(proc, "info") and isinstance(proc.info, dict):
-            return proc.info.get(attr, default)
-        return getattr(proc, attr, default)
+        if bytes_value is None:
+            return 0.0
+        return max(float(bytes_value), 0.0) / (1024.0 * 1024.0)
     except Exception:
-        return default
+        return 0.0
 
 
-# Backward-compatible alias used by downstream modules.
-safe_process_attr = safe_proc_attr
+def safe_divide(a: float, b: float) -> float:
+    """Divide two numbers safely and return 0.0 on error."""
+    try:
+        if b == 0:
+            return 0.0
+        return float(a) / float(b)
+    except Exception:
+        return 0.0
+
+
+def normalize_name(name: str) -> str:
+    """Normalize process-like names by stripping whitespace and lowercasing."""
+    try:
+        if name is None:
+            return "unknown"
+        normalized = str(name).strip().lower()
+        return normalized or "unknown"
+    except Exception:
+        return "unknown"
+
+
+def safe_str(value) -> str:
+    """Convert values to string, mapping None and empty strings to 'unknown'."""
+    try:
+        if value is None:
+            return "unknown"
+        text = str(value).strip()
+        return text if text else "unknown"
+    except Exception:
+        return "unknown"
