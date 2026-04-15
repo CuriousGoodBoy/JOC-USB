@@ -1,0 +1,4 @@
+[
+  {"pid": 1, "name": "systemd", "cpu_percent": 0.2},
+  {"pid": 2048, "name": "python3", "cpu_percent": 5.1}
+]

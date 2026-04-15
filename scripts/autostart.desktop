@@ -1,0 +1,6 @@
+[Desktop Entry]
+Type=Application
+Name=JOC-USB
+Exec=/bin/bash -c "cd $HOME/joc-usb && ./scripts/start.sh"
+X-GNOME-Autostart-enabled=true
+Terminal=true
